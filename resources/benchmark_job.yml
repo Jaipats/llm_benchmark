@@ -1,0 +1,51 @@
+resources:
+  jobs:
+    llm_benchmark_job:
+      name: ${var.app_name}-runner
+      description: Runs lm-evaluation-harness benchmarks against a serving endpoint; triggered from the llm-benchmarks app.
+      max_concurrent_runs: 10
+      timeout_seconds: 86400
+      parameters:
+        - name: endpoint
+          default: ""
+        - name: benchmarks
+          default: ifeval
+        - name: sample_limit
+          default: "50"
+        - name: run_id
+          default: ""
+        - name: requested_by
+          default: ""
+      environments:
+        - environment_key: lm_eval
+          spec:
+            client: "4"
+            dependencies:
+              - lm_eval[ifeval,math]==0.4.13
+              - evaluate==0.4.6
+              - datasets==5.1.0
+              - huggingface_hub==2.3.0
+              - fsspec==2026.7.0
+              - openai>=1.40
+              - databricks-sdk>=0.81
+              - psycopg[binary]>=3.2
+              - mlflow>=3.1
+      tasks:
+        - task_key: run_benchmarks
+          environment_key: lm_eval
+          spark_python_task:
+            python_file: ../src/benchmark_runner/run_benchmark.py
+            parameters:
+              - --endpoint={{job.parameters.endpoint}}
+              - --benchmarks={{job.parameters.benchmarks}}
+              - --sample_limit={{job.parameters.sample_limit}}
+              - --run_id={{job.parameters.run_id}}
+              - --job_run_id={{job.run_id}}
+              - --requested_by={{job.parameters.requested_by}}
+              - --catalog=${var.catalog}
+              - --schema=${var.schema}
+              - --volume=/Volumes/${var.catalog}/${var.schema}/artifacts
+              - --lakebase_endpoint=${var.lakebase_endpoint}
+              - --lakebase_database=${var.lakebase_database}
+              - --experiment=${var.experiment}
+              - --hf_token_secret=${var.hf_token_secret}

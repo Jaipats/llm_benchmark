@@ -1,0 +1,64 @@
+# LLM Benchmarks on Databricks — architecture diagram for the README.
+# Rendered with D2 (elk layout) plus a Databricks theme/icon set prepended at render time:
+# set ${ICONS} to a directory of Databricks product icons, render to SVG, then
+#   rsvg-convert architecture.svg -o architecture-light.png   (GitHub strips icons from SVGs)
+# Color comes from the prepended theme; author color-free.
+
+direction: right
+vars: { d2-config: { layout-engine: elk; pad: 40 } }
+
+user: User { shape: person; class: source }
+
+ws: Databricks workspace {
+  class: group
+
+  app: Databricks App\nAppKit · React + Express {
+    class: serve; icon: ${ICONS}/databricks/apps.svg
+  }
+
+  jobs: Lakeflow Jobs (serverless) {
+    class: group
+    runner: <app>-runner\nlm-evaluation-harness\n+ Databricks chat adapter {
+      class: compute; icon: ${ICONS}/databricks/workflows.svg
+    }
+    setup: <app>-setup\ntables + grants {
+      class: compute; icon: ${ICONS}/databricks/workflows.svg
+    }
+  }
+
+  serving: Model Serving / AI Gateway\nchat endpoints {
+    class: compute; icon: ${ICONS}/databricks/model_serving.svg
+  }
+
+  mlflow: MLflow experiment\nmetrics + artifacts { class: store; icon: ${ICONS}/databricks/mlflow.svg }
+
+  uc: Unity Catalog · <catalog>.<schema> {
+    class: group
+    delta: Delta tables\nbenchmark_runs · benchmark_scores {
+      shape: cylinder; class: store; icon: ${ICONS}/databricks/delta_lake.svg
+    }
+    vol: Volume: artifacts\nresults.json · samples {
+      shape: cylinder; class: store; icon: ${ICONS}/databricks/unity_catalog.svg
+    }
+  }
+
+  lakebase: Lakebase Postgres\nbenchmarks.* (app read copy) {
+    shape: cylinder; class: store; icon: ${ICONS}/databricks/lakebase.svg
+  }
+
+  app -> jobs.runner: 1. run · cancel · status\n(Jobs API) { class: accent }
+  app -> serving: list chat endpoints
+  app -> lakebase: 4. read leaderboard\n+ run history
+  jobs.runner -> serving: 2. chat completions { class: accent }
+  jobs.runner -> mlflow: log run
+  jobs.runner -> uc.vol: raw output
+  jobs.runner -> uc.delta: 3. MERGE scores
+  jobs.runner -> lakebase: 3. upsert scores
+  jobs.setup -> uc.delta: create { class: govlink }
+  jobs.setup -> lakebase: create + grant app { class: govlink }
+}
+
+hf: Hugging Face Hub\n(benchmark datasets) { shape: cloud; class: source }
+
+user -> ws.app: pick model, benchmarks,\nsample size
+hf -> ws.jobs.runner: datasets

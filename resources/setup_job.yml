@@ -1,0 +1,27 @@
+resources:
+  jobs:
+    llm_benchmark_setup:
+      name: ${var.app_name}-setup
+      description: Creates the results schema, Delta tables, volume and Lakebase tables; grants the app read access. Idempotent.
+      timeout_seconds: 1800
+      parameters:
+        - name: app_service_principal
+          default: ""
+      environments:
+        - environment_key: setup
+          spec:
+            client: "4"
+            dependencies:
+              - databricks-sdk>=0.81
+              - psycopg[binary]>=3.2
+      tasks:
+        - task_key: setup
+          environment_key: setup
+          spark_python_task:
+            python_file: ../src/benchmark_runner/setup.py
+            parameters:
+              - --catalog=${var.catalog}
+              - --schema=${var.schema}
+              - --lakebase_endpoint=${var.lakebase_endpoint}
+              - --lakebase_database=${var.lakebase_database}
+              - --app_service_principal={{job.parameters.app_service_principal}}

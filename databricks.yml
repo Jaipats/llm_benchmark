@@ -1,0 +1,39 @@
+# Benchmark runner + setup jobs. The app lives in its own bundle under llm-benchmarks/.
+# Deploy everything with ./deploy.sh — it resolves the Lakebase endpoint and passes these variables.
+bundle:
+  name: llm-benchmarks
+
+include:
+  - resources/*.yml
+
+sync:
+  exclude:
+    - llm-benchmarks/**
+
+variables:
+  app_name:
+    description: App name; also scopes job names and bundle state so several deployments can coexist
+    default: llm-benchmarks
+  catalog:
+    description: Existing Unity Catalog catalog for the results schema
+  schema:
+    description: Schema created for the Delta results tables and artifacts volume
+    default: llm_benchmarks
+  lakebase_endpoint:
+    description: Lakebase read-write endpoint (projects/<p>/branches/<b>/endpoints/<e>)
+  lakebase_database:
+    description: Postgres database name inside the Lakebase branch
+    default: databricks_postgres
+  experiment:
+    description: MLflow experiment for benchmark runs
+    default: /Shared/llm-benchmarks
+  hf_token_secret:
+    description: Optional "scope/key" secret holding a Hugging Face token (needed for gated GPQA)
+    default: ""
+
+targets:
+  prod:
+    default: true
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${var.app_name}/jobs

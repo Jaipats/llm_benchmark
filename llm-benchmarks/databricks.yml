@@ -1,0 +1,43 @@
+# The llm-benchmarks Databricks App. Deployed by ../deploy.sh, which passes these variables.
+bundle:
+  name: llm-benchmarks
+
+variables:
+  app_name:
+    description: App name (lowercase letters, numbers and hyphens; unique in the workspace)
+    default: llm-benchmarks
+  job_id:
+    description: ID of the llm-benchmark-runner job the app triggers
+  postgres_branch:
+    description: Lakebase branch resource name (projects/<p>/branches/<b>)
+  postgres_database:
+    description: Lakebase database resource name (projects/<p>/branches/<b>/databases/<d>)
+
+resources:
+  apps:
+    app:
+      name: ${var.app_name}
+      description: "Benchmark LLM serving endpoints against public benchmarks and compare results"
+      source_code_path: ./
+
+      # Start the app automatically on deploy.
+      lifecycle:
+        started: true
+
+      # The resources which this app has access to.
+      resources:
+        - name: job
+          job:
+            id: ${var.job_id}
+            permission: CAN_MANAGE_RUN
+        - name: postgres
+          postgres:
+            branch: ${var.postgres_branch}
+            database: ${var.postgres_database}
+            permission: CAN_CONNECT_AND_CREATE
+
+targets:
+  default:
+    default: true
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${var.app_name}/app
