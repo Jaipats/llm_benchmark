@@ -12,7 +12,7 @@ import {
 } from '@databricks/appkit-ui/react';
 import { Gauge } from 'lucide-react';
 import { useState } from 'react';
-import { useApi, type BenchmarkInfo, type SampleLimit } from './api';
+import { useApi, type Area, type BenchmarkInfo, type SampleLimit } from './api';
 import { HistoryPage } from './pages/HistoryPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { RunPage } from './pages/RunPage';
@@ -20,6 +20,7 @@ import { RunPage } from './pages/RunPage';
 interface Catalog {
   benchmarks: BenchmarkInfo[];
   sampleLimits: SampleLimit[];
+  areas: Area[];
 }
 
 type Tab = 'leaderboard' | 'run' | 'history';
@@ -63,6 +64,7 @@ export default function App() {
               <TabsContent value="leaderboard" className="mt-4">
                 <LeaderboardPage
                   benchmarks={catalog.data.benchmarks}
+                  areas={catalog.data.areas}
                   sampleLimits={catalog.data.sampleLimits}
                   onRunBenchmark={() => setTab('run')}
                 />

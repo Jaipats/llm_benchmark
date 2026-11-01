@@ -4,11 +4,17 @@ export interface BenchmarkInfo {
   key: string;
   label: string;
   category: string;
+  area: string;
   metric: string;
   fullSize: number;
   subtasks: number;
   description: string;
   note?: string;
+}
+
+export interface Area {
+  key: string;
+  label: string;
 }
 
 export interface SampleLimit {

@@ -7,7 +7,7 @@ import { randomUUID } from 'node:crypto';
 import { getWorkspaceClient, type JobAPI } from '@databricks/appkit';
 import type { Application, Request, Response } from 'express';
 import { z } from 'zod';
-import { BENCHMARKS, BENCHMARK_KEYS, SAMPLE_LIMITS } from '../benchmarks';
+import { AREAS, BENCHMARKS, BENCHMARK_KEYS, SAMPLE_LIMITS } from '../benchmarks';
 
 interface AppKitForBenchmarks {
   lakebase: {
@@ -98,7 +98,7 @@ export function setupBenchmarkRoutes(appkit: AppKitForBenchmarks) {
     });
 
     app.get('/api/benchmarks', (_req: Request, res: Response) => {
-      res.json({ benchmarks: BENCHMARKS, sampleLimits: SAMPLE_LIMITS });
+      res.json({ benchmarks: BENCHMARKS, sampleLimits: SAMPLE_LIMITS, areas: AREAS });
     });
 
     app.get('/api/models', async (_req: Request, res: Response) => {

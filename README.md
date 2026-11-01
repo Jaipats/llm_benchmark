@@ -45,8 +45,8 @@ leaderboard and side-by-side comparison.
 - **8 benchmarks suited to new frontier models**: MMLU-Pro, GPQA Diamond, IFEval, BIG-Bench Hard,
   MATH-500, AIME 2025, GSM8K and HumanEval.
 - **Sample sizes**: smoke test (10 per task), quick (50), standard (200) or the full benchmark.
-- **Leaderboard**: model × benchmark table, the best score per column in bold, a sample-size filter
-  so you only compare like with like, and a grouped bar chart on a shared 0–100% scale.
+- **Leaderboard**: a ranked list by overall score, top picks per skill area, a head-to-head view for
+  any two models, and *too close to call* when a gap is within the margin of error.
 - **Run history**: live status, cancel, links to the job run, sub-task scores, standard errors,
   token usage, and the request parameters each endpoint accepted.
 - **Durable, queryable results**: Delta tables in Unity Catalog (source of truth), a Lakebase
@@ -190,10 +190,22 @@ Every step is idempotent, so re-running the script is how you update a deploymen
 **Details** shows every sub-task score with standard error and sample count, token usage, failed
 requests, and which parameters the endpoint rejected.
 
-**Leaderboard**: the latest completed score per model and benchmark. Use **Sample size** to
-restrict to runs of one size. With *Latest run of any size*, a warning appears if sizes are mixed.
-Tick models in the table to change what the chart compares. The mean column shows coverage
-(e.g. `6/8`), because means are only comparable between models that ran the same benchmarks.
+**Leaderboard**: built around one question: which model is better?
+
+- **Headline**: the overall leader and its lead over the runner-up. It says *Too close to call*
+  when the gap is within the margin of error (95%, from each benchmark's standard error).
+- **Benchmarks in overall score**: toggle which benchmarks count. The overall score is the mean
+  of the selected benchmarks, and only models that ran all of them are ranked. The others are
+  listed under *Not ranked* with what they're missing.
+- **Top picks**: the best model overall and in each skill area (Knowledge, Reasoning, Math,
+  Coding, Instruction following), each with its lead over the runner-up.
+- **Rankings**: rank, overall score bar, and one column per skill area (the mean of that area's
+  benchmarks), with the best in each column in bold. Select a row for every benchmark score,
+  with `n`, standard error, sample size and run time.
+- **Head to head**: pick any two models. Each shared benchmark shows a butterfly bar (the longer
+  side wins) and the gap in points, with a summary of who wins more benchmarks.
+- **Sample size**: restrict to runs of one size. With *Latest run of any size*, a warning
+  appears if sizes are mixed.
 
 ## How scoring works
 
